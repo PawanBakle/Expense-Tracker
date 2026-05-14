@@ -1,7 +1,3 @@
-Here is a solid, professional README that sounds like it was written by a developer who cares about architecture, not an AI trying to sell a product.
-
----
-
 # Expense Tracker API
 
 A high-performance, containerized backend engine built with Django and PostgreSQL for managing group-based financial ledgers and settlements.
