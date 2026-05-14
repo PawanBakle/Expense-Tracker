@@ -62,11 +62,15 @@ serializer.validated_data is the clean, validated input (Python-native), meant f
             # print('Validated Data')
             # serializer.create() # we don't call create here since we have business logic to handle the validation and DB write 
         # else:
-        #     return Response(serializer.errors,status=400)  
-        return Response(result, status=201)
+        #     return Response(serializer.errors,status=400) 
+        print('return of type', type(result), result) 
+        # Okay the issue is i am sending result which is a model and trying to return as a JSON before converting it into Python type
+        jsonify = ExpenseListSerializer(result)
+        print(type(jsonify),jsonify.data)
+        return Response(jsonify.data, status=201)
 
 # `GET /api/groups/{group_id}/expenses` Getting Group Expense
-    def get(self, request, group_Id):
+    def get(self, request, group_Id = None):
         group = get_object_or_404(Group, group_Id)
 
         # Check if the one who request group expense is part of the group or not
@@ -86,7 +90,7 @@ class BalanceView(APIView):
         # no need for serializing here since user just requests for Balance with user id
         # but first i need to check if user exists or not
         
-        user = get_object_or_404(UserBase,id = request.user)
+        user = get_object_or_404(UserBase,id = request.user.id)
         get_balance = compute_balance(user)
 
         return Response(get_balance,status=status.HTTP_200_OK)
@@ -101,7 +105,7 @@ class SettlementView(APIView):
 
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
+        return Response(serializer.data, status = status.HTTP_201_CREATED)
 
 # `POST /api/groups/` Creating Group. done by a user 
 # class GroupView(viewsets.ViewSet):
@@ -126,7 +130,7 @@ class GroupView(APIView):
         # user_valid = get_object_or_404(UserBase, id = user) ALREADY CHECKED IN permission_classes
         # here we are validating for group id and not user id. 
         # we cannot check directly here since group id is a model and not included in request object
-        group = Group.objects.prefetch_related('groupmember_set','expenses_set').get(id = groupId)
+        group = Group.objects.prefetch_related('groupmember_set','expense_set').get(id = groupId)
         # group_members = group.group_members_set.all()
         # group_expense = group.expenses_set.all()
 

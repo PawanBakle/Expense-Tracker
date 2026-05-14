@@ -1,0 +1,449 @@
+{
+  "info": {
+    "_postman_id": "17896693-640e-4045-a5ea-273f83dc4022",
+    "name": "Expense_Tracker APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register User",
+      "id": "3734fb98-37e1-4e49-9550-ca0b04de6f87",
+      "protocolProfileBehavior": {
+        "disabledSystemHeaders": {},
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text",
+            "uuid": "e38c2bdd-e8e1-475b-bd42-ea5b8448fca2",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"charlie@example.com\",\r\n  \"password\": \"SecurePassword123!\",\r\n  \"mobile_number\": \"+1234567890\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/register/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "register",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "User Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "id": "fbd7f897-be51-4435-9ee3-93d965a98caf",
+            "exec": [
+              "const response = pm.response.json();\r",
+              "pm.environment.set(\"token\", response.token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "id": "9229a8b9-f031-41d4-8402-aa70f4833409",
+      "protocolProfileBehavior": {
+        "disabledSystemHeaders": {},
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text",
+            "uuid": "e38c2bdd-e8e1-475b-bd42-ea5b8448fca2",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"alice@example.com\",\r\n  \"password\": \"SecurePassword123!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/users/login/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "users",
+            "login",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add New Group",
+      "id": "59960e1e-b858-49e6-9d29-7be77498c585",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "apikey",
+          "apikey": [
+            {
+              "key": "value",
+              "value": "Token {{token}}",
+              "type": "string"
+            },
+            {
+              "key": "key",
+              "value": "Authorization",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Token {{token}}",
+            "type": "text",
+            "uuid": "328b3584-8ff0-4a12-936c-f0f5ad1d0a45"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"Backend Trip 2026\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/groups/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "groups",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add New Group Member",
+      "id": "16071db2-64e0-4f77-a5c9-f69717c61fb0",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "apikey",
+          "apikey": [
+            {
+              "key": "value",
+              "value": "Token {{token}}",
+              "type": "string"
+            },
+            {
+              "key": "key",
+              "value": "Authorization",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Token {{token}}",
+            "type": "text",
+            "uuid": "328b3584-8ff0-4a12-936c-f0f5ad1d0a45"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": 2, \r\n  \"is_admin\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/groups/5/members/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "groups",
+            "5",
+            "members",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add New Expense",
+      "id": "d7be85fb-5e09-47b7-abd2-d55081aaeeca",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "apikey",
+          "apikey": [
+            {
+              "key": "value",
+              "value": "Token {{token}}",
+              "type": "string"
+            },
+            {
+              "key": "key",
+              "value": "Authorization",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Token {{token}}",
+            "type": "text",
+            "uuid": "328b3584-8ff0-4a12-936c-f0f5ad1d0a45"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "// {\r\n//   \"payer\": 4,\r\n//   \"total_amount\": \"300.00\",\r\n//   \"description\": \"Cabin Stay\",\r\n//   \"participants\": [4, 2]\r\n// }\r\n{\r\n  \"amount\": 1000,\r\n  \"paid_by\": 1,\r\n  \"participants\": [1,2],\r\n  \"split_type\": \"equal\"\r\n}\r\n",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/groups/5/expenses/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "groups",
+            "5",
+            "expenses",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Retrieve Group Details",
+      "id": "598ada38-9965-44bc-8d7e-146c7832b644",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "apikey",
+          "apikey": [
+            {
+              "key": "value",
+              "value": "Token {{token}}",
+              "type": "string"
+            },
+            {
+              "key": "key",
+              "value": "Authorization",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/groups/5/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "groups",
+            "5",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Retrieve User Balance",
+      "id": "9794f915-660f-49ea-8f70-5dcedc3a7704",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "apikey",
+          "apikey": [
+            {
+              "key": "value",
+              "value": "Token {{token}}",
+              "type": "string"
+            },
+            {
+              "key": "key",
+              "value": "Authorization",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/balance/1",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "balance",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add New Settlement",
+      "id": "40a0df5b-7ff3-4a93-8d41-218734236f94",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "apikey",
+          "apikey": [
+            {
+              "key": "value",
+              "value": "Token {{token}}",
+              "type": "string"
+            },
+            {
+              "key": "key",
+              "value": "Authorization",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"group\": 5,\r\n  \"payer\": 2,\r\n  \"receiver\": 1,\r\n  \"amount_paid\": \"100.00\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/settlements/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "settlements",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Forbidden Request",
+      "id": "08700568-f8bb-4662-ac94-5d9c04ac8468",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "apikey",
+          "apikey": [
+            {
+              "key": "value",
+              "value": "Token {{token}}",
+              "type": "string"
+            },
+            {
+              "key": "key",
+              "value": "Authorization",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"email\": \"test_user@gmail.com\",\r\n  \"password\": \"SecurePassword123!\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/groups/1/",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "groups",
+            "1",
+            ""
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "New Request",
+      "id": "23aa9539-718b-42f4-a90c-0d8e5e26b3e6",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+
+*.sqlite3
+
+# --- Postman Internal App Metadata Cache ---
+.postman/
+
+# --- Docker Caches ---
+.docker/
+
+# --- Environment Variables 
+.env
+.venv
+env/
+venv/
+ENV/

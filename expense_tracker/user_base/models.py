@@ -2,6 +2,8 @@ from django.db import models
 
 from django.contrib.auth.models import User,AbstractBaseUser,BaseUserManager,AbstractUser
 from django.conf import settings
+
+from .managers import UserBaseManager
 '''
 Group
 GroupMember
@@ -19,6 +21,7 @@ class UserBase(AbstractUser):
     mobile_number = models.CharField(max_length= 15)
     username = None
     USERNAME_FIELD = 'email'
+    objects = UserBaseManager()
     REQUIRED_FIELDS = []
     def __str__(self):
         return self.email
@@ -58,4 +61,4 @@ class Settlement(models.Model):
     payer = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT,related_name= 'settlements_paid')
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT,related_name='settlements_received')
     amount_paid = models.DecimalField(max_digits=10,decimal_places=2)
-
+    
