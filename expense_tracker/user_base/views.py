@@ -18,6 +18,7 @@ def home(request):
     return HttpResponse("Welcome to User Base home!")
 
 class UserRegistrationView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         serializer = UserRegisterSerializer(data = request.data)
         serializer.is_valid(raise_exception= True)
@@ -70,12 +71,12 @@ serializer.validated_data is the clean, validated input (Python-native), meant f
         return Response(jsonify.data, status=201)
 
 # `GET /api/groups/{group_id}/expenses` Getting Group Expense
-    def get(self, request, group_Id = None):
-        group = get_object_or_404(Group, group_Id)
+    def get(self, request, group_id = None):
+        group = get_object_or_404(Group, id=group_id)
 
         # Check if the one who request group expense is part of the group or not
         if not GroupMember.objects.filter(_group = group,name = request.user).exists():
-            raise ValidationError('Cannot Provide Information')
+            raise PermissionDenied('Cannot Provide Information')
 
         expense_list = Expense.objects.filter(group = group)
         serializer = ExpenseListSerializer(expense_list, many = True) # since we are forwarding many object / rows so we mention many - True
@@ -120,6 +121,7 @@ class GroupView(APIView):
         instance = serializer.save() #automatically creates the Model object (Python Type → Model Object/Row)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
+
     '''
     serializer = GroupSerializer(data=request.data, context={'request': request.user})   
     user = self.context['request']

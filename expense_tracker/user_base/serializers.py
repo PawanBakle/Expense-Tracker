@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
-from .views import *
+
 from .models import Expense,Group,GroupMember,Settlement,UserBase
 from rest_framework import serializers
 
@@ -14,6 +14,7 @@ from .managers import UserBaseManager
 # Registration of the User
 class UserRegisterSerializer(serializers.ModelSerializer):
     # validate password 
+    
     password = serializers.CharField(write_only = True,validators=[validate_password])
     class Meta:
         model = UserBase
@@ -58,12 +59,29 @@ class LoginSerializer(serializers.Serializer):
   "`split_type`": "equal"
 }
 '''
+
+class PercentageSplitSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    percentage = serializers.DecimalField(
+        max_digits=5,
+        decimal_places=2
+    )
+
 class ExpenseSerializer(serializers.Serializer):
     allowed_values = ['equal','percentage']
     amount = serializers.DecimalField(max_digits=10,decimal_places=2)
     split_type = serializers.CharField()
     paid_by = serializers.IntegerField()
-    participants = serializers.ListField(child = serializers.IntegerField())
+    # participants = serializers.ListField(child = serializers.IntegerField())
+
+    participants = serializers.ListField(
+        child=serializers.IntegerField(),
+        required=False
+    )
+    splits = PercentageSplitSerializer(
+        many=True,
+        required=False
+    )
     # class Meta:
     #     model = Expense
         # fields = ['paid_by','group','total_amount','description','created_at']
@@ -83,15 +101,73 @@ class ExpenseSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid Split Type")
         return split_type
     
+    # def validate(self, attrs):
+    #     participants = attrs.get("participants", [])
+    #     paid_by = attrs.get("paid_by")
+
+    #     if paid_by not in participants:
+    #         raise serializers.ValidationError("payer must be part of participants")
+
+    #     return attrs
+
     def validate(self, attrs):
-        participants = attrs.get("participants", [])
+
+        split_type = attrs.get("split_type")
         paid_by = attrs.get("paid_by")
 
-        if paid_by not in participants:
-            raise serializers.ValidationError("payer must be part of participants")
+        if split_type == "equal":
+
+            participants = attrs.get("participants")
+
+            if not participants:
+                raise serializers.ValidationError(
+                    "participants required for equal split"
+                )
+
+            if len(set(participants)) != len(participants):
+                raise serializers.ValidationError(
+                    "Participants are repeated"
+                )
+
+            if paid_by not in participants:
+                raise serializers.ValidationError(
+                    "payer must be part of participants"
+                )
+
+        elif split_type == "percentage":
+
+            splits = attrs.get("splits")
+
+            if not splits:
+                raise serializers.ValidationError(
+                    "splits required for percentage split"
+                )
+
+            users = [item["user"] for item in splits]
+
+            if len(set(users)) != len(users):
+                raise serializers.ValidationError(
+                    "duplicate users in splits"
+                )
+
+            if paid_by not in users:
+                raise serializers.ValidationError(
+                    "payer must be part of splits"
+                )
+
+            total_percentage = sum(
+                item["percentage"]
+                for item in splits
+            )
+
+            if total_percentage != 100:
+                raise serializers.ValidationError(
+                    "Total percentage must equal 100"
+                )
 
         return attrs
     
+
 
 #`GET /api/groups/{group_id}/expenses` Getting Group Expense
 class ExpenseListSerializer(serializers.ModelSerializer):
@@ -119,7 +195,6 @@ class SettlementSerializer(serializers.ModelSerializer):
         fields = ['id','group','payer','receiver','amount_paid']
     
     def validate(self, attrs):
-
         payer = attrs['payer']
         receiver = attrs['receiver']
         group = attrs['group']
@@ -131,26 +206,6 @@ class SettlementSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Both the payer and the receiver must be members of the group')
         return attrs
 
-
-# `POST /api/groups/` CREATE GROUP SERIALIZER
-# class GroupSerializer(serializers.ModelSerializer):
-#     '''
-#     name = models.CharField(max_length=25,null=False, blank=True)
-#     created_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT)
-#     created_at = models.DateTimeField(auto_now_add=True)
-#     '''
-
-#     class Meta:
-#         model = Group
-#         fields = ['id', 'name', 'created_by', 'created_at']
-#         read_only_fields = ['id','created_by', 'created_at']
-    
-
-#     def create(self, validated_data):
-#         user = self.context['request'].user
-#         return Group.objects.create(created_by = user, **validated_data)
-# 
-
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
@@ -158,6 +213,7 @@ class GroupSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_by', 'created_at']
 
     def create(self, validated_data):
+        # context = {request: request}
         user = self.context['request'].user
         
         # Use an atomic transaction so both rows succeed together or fail together
@@ -174,26 +230,6 @@ class GroupSerializer(serializers.ModelSerializer):
             
         return group
 
-# `POST /api/groups/{group_id}/members` ADDING GROUP MEMBER
-# class GroupMemberSerializer(serializers.ModelSerializer):
-#     name = serializers.PrimaryKeyRelatedField(many = True, queryset = UserBase.objects.all())
-#     # am i doing any validation here? 
-#     class Meta:
-#         model = GroupMember
-#         fields = ['id','name','_group','is_admin','joined_at']
-#         read_only_fields = ['id','joined_at']
-#     def create(self,validated_data): # cannot pass user-id in here 
-#         user_id = validated_data['name'] # retrieve name row for FK to User
-#         # for joined at i do need the user id 
-#         g_id = self.context['group_id'] # retrieve group row for FK to Group
-
-
-#         # TO prevent duplicates we check if user exists in the Group already as a Member!
-#         # for that we need to retreive all member FROM the group i.e holding Group retrieve Members (1-m)
-#         # if Group.objects.filter(id = g_id, members__name = user_id).exists():
-#         if GroupMember.objects.filter(_group = g_id,name = user_id).exists():
-#             raise serializers.ValidationError("This user is already a member of this group.")
-#         return GroupMember.objects.create(group= g_id, **validated_data)
     
 class GroupMemberSerializer(serializers.ModelSerializer):
     # REMOVED many=True because Postman sends a single ID per request
@@ -223,6 +259,42 @@ class GroupMemberSerializer(serializers.ModelSerializer):
         
         # Explicitly combine them to create the clean row safely
         return GroupMember.objects.create(_group=group_obj, **validated_data)
+   
+class GroupDetailSerializer(serializers.ModelSerializer):
+    # here we serialize both members and groups which we have passed inside the GroupDetailSerializer
+    members = GroupMemberSerializer(source = 'groupmember_set',many = True, read_only = True)
+    expense = ExpenseListSerializer(source = 'expense_set',many = True, read_only = True)
+
+    class Meta:
+        model = Group
+        fields = ['id', 'name', 'created_by', 'created_at','members','expense']
+        read_only_fields = ['id', 'created_at']
+
+
+
+
+ # SETTLEMENT SERIALIZER (WRONG SERIALIZER)
+
+# `POST /api/groups/{group_id}/members` ADDING GROUP MEMBER
+# class GroupMemberSerializer(serializers.ModelSerializer):
+#     name = serializers.PrimaryKeyRelatedField(many = True, queryset = UserBase.objects.all())
+#     # am i doing any validation here? 
+#     class Meta:
+#         model = GroupMember
+#         fields = ['id','name','_group','is_admin','joined_at']
+#         read_only_fields = ['id','joined_at']
+#     def create(self,validated_data): # cannot pass user-id in here 
+#         user_id = validated_data['name'] # retrieve name row for FK to User
+#         # for joined at i do need the user id 
+#         g_id = self.context['group_id'] # retrieve group row for FK to Group
+
+
+#         # TO prevent duplicates we check if user exists in the Group already as a Member!
+#         # for that we need to retreive all member FROM the group i.e holding Group retrieve Members (1-m)
+#         # if Group.objects.filter(id = g_id, members__name = user_id).exists():
+#         if GroupMember.objects.filter(_group = g_id,name = user_id).exists():
+#             raise serializers.ValidationError("This user is already a member of this group.")
+#         return GroupMember.objects.create(group= g_id, **validated_data)
 
 # class GroupSerializer(serializers.Serializer):
 #     '''
