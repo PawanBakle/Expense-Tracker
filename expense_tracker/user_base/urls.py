@@ -12,8 +12,23 @@ from .views import ExpenseView,BalanceView,GroupView,UserRegistrationView
 # ]   
 from django.urls import path
 from . import views
+from drf_spectacular.views import SpectacularAPIView,SpectacularSwaggerView 
+
+
 
 urlpatterns = [
+
+    path(
+        'api/schema/',
+        SpectacularAPIView.as_view(),
+        name='schema'
+    ),
+
+    path(
+        'api/docs/',
+        SpectacularSwaggerView.as_view(url_name='schema'),
+        name='swagger-ui'
+    ),
     # Core Home Route
     path('', views.home, name='home'),
     
@@ -27,7 +42,7 @@ urlpatterns = [
     
     # Core Group Actions
     path('api/groups/', views.GroupView.as_view(), name='group-list-create'),
-    path('api/groups/<int:groupId>/', views.GroupView.as_view(), name='group-detail'),
+    path('api/groups/<int:group_id>/', views.GroupView.as_view(), name='group-detail'),
     
     # Sub-Resource Routes (Nested Cleanly under group_id)
     path('api/groups/<int:group_id>/expenses/', views.ExpenseView.as_view(), name='group-expenses'),

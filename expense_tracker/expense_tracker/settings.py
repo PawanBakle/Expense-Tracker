@@ -39,15 +39,25 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'user_base',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    'drf_spectacular',
     
 ]
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication', # 2. Tells DRF to look for tokens
+        'rest_framework.authentication.TokenAuthentication',
     ],
-}
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Expense Splitting API',
+    'DESCRIPTION': 'Splitwise-style expense management API built using Django REST ',
+    'VERSION': '1.0.0',
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -84,28 +94,28 @@ WSGI_APPLICATION = 'expense_tracker.wsgi.application'
 
 
 # search for the Docker environment variables or fall back to safe local defaults
-DB_NAME = os.environ.get('DB_NAME', 'expense_db')
-DB_USER = os.environ.get('DB_USER', 'postgres_user')
-DB_PASSWORD = os.environ.get('DB_PASSWORD', 'pass@1234')
-DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')  # 'db' inside Docker, localhost outside
-DB_PORT = os.environ.get('DB_PORT', '5432')
+# DB_NAME = os.environ.get('DB_NAME', 'expense_db')
+# DB_USER = os.environ.get('DB_USER', 'postgres_user')
+# DB_PASSWORD = os.environ.get('DB_PASSWORD', 'pass@1234')
+# DB_HOST = os.environ.get('DB_HOST', '127.0.0.1')  # 'db' inside Docker, localhost outside
+# DB_PORT = os.environ.get('DB_PORT', '5432')
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': DB_NAME,
-        'USER': DB_USER,
-        'PASSWORD': DB_PASSWORD,
-        'HOST': DB_HOST,
-        'PORT': DB_PORT,
-    }
-}
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': DB_NAME,
+#         'USER': DB_USER,
+#         'PASSWORD': DB_PASSWORD,
+#         'HOST': DB_HOST,
+#         'PORT': DB_PORT,
 #     }
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 
 # Password validation
