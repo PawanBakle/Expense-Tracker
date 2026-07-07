@@ -36,6 +36,9 @@ class GroupMember(models.Model):
     _group = models.ForeignKey(Group,on_delete=models.PROTECT)
     is_admin = models.BooleanField(default=False)
     joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('_group','name')
  
 class Expense(models.Model):
     paid_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT)

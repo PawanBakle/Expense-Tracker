@@ -205,7 +205,7 @@ def expense_split_compute(data, group_id):
     # 1. Input Validation (Fail Fast)
     total_amount = Decimal(str(data.get('amount', '0')))
 
-
+    split_type = data.get('split_type')
     # (Percentage SPLIT) participant_ids = data.get('participants', [])
     if split_type == "equal":
         participant_ids = set(data["participants"])
@@ -233,7 +233,7 @@ def expense_split_compute(data, group_id):
         raise PermissionDenied("One or more users (including payer) are not members of this group.")
 
     # 3. Calculate Splits (The Pure-Logic Layer)
-    split_type = data.get('split_type')
+    
     if split_type == 'equal':
         calculated_splits = split_by_equal(participant_ids, payer, total_amount)
     elif split_type == 'percentage':
