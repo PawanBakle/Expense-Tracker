@@ -14,16 +14,18 @@ from django.urls import path
 from . import views
 from drf_spectacular.views import SpectacularAPIView,SpectacularSwaggerView 
 
-
+from django.views.generic import RedirectView
 
 urlpatterns = [
 
+    path('', RedirectView.as_view(url='api/docs/', permanent=False)),
+
+    # 2. Your existing Swagger endpoints
     path(
         'api/schema/',
         SpectacularAPIView.as_view(),
         name='schema'
     ),
-
     path(
         'api/docs/',
         SpectacularSwaggerView.as_view(url_name='schema'),

@@ -129,3 +129,11 @@ SESSION_COOKIE_AGE = 1209600
 
 # Security middleware
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Expense Tracker API',
+    'DESCRIPTION': 'API documentation for Expense Tracker Backend',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # Force authentication parsing to skip blocking schema generation
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+}
