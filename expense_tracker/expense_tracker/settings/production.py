@@ -12,8 +12,7 @@ SECRET_KEY = config('SECRET_KEY')  # Must be set in environment
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 # Add Railway's domain
-ALLOWED_HOSTS.append('*.railway.app')
-ALLOWED_HOSTS.append('*.up.railway.app')
+ALLOWED_HOSTS.extend(['*.railway.app', '*.up.railway.app'])
 # Database - PostgreSQL using DATABASE_URL
 # DATABASE_URL = config('DATABASE_URL', default=None)
 # if DATABASE_URL:
@@ -135,8 +134,14 @@ SESSION_COOKIE_AGE = 1209600  # 2 weeks
 
 # CSRF settings
 # CSRF Trusted Origin, Filter out empty values
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if origin.strip()]
-# Ensure all origins have a scheme
-CSRF_TRUSTED_ORIGINS = [f'https://{origin}' if not origin.startswith(('http://', 'https://')) else origin for origin in CSRF_TRUSTED_ORIGINS]
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+# Add Railway domains
+CORS_ALLOWED_ORIGINS.extend(['https://*.railway.app', 'https://*.up.railway.app'])
+
+# CSRF Trusted Origins
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
+# Add Railway domains
+CSRF_TRUSTED_ORIGINS.extend(['https://*.railway.app', 'https://*.up.railway.app'])
 # Security middleware
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
