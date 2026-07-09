@@ -1,119 +1,104 @@
 from .base import *
-from decouple import config
-import dj_database_url
 import os
+import dj_database_url
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# Security settings
-SECRET_KEY = config('SECRET_KEY')  # Must be set in environment
+# Security settings - Use os.environ.get() for ALL variables
+SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY must be set in environment")
 
-# Allowed hosts - comma separated in environment variable
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+# Allowed hosts - get from environment
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 # Remove empty strings
-ALLOWED_HOSTS = [host for host in ALLOWED_HOSTS if host]
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()]
 # Add Railway's domain
 ALLOWED_HOSTS.extend(['*.railway.app', '*.up.railway.app', 'localhost', '127.0.0.1'])
 
-# Database - Use environment variable directly
+# Database - Use DATABASE_URL from Railway
 DATABASE_URL = os.environ.get('DATABASE_URL')
+print(f"DEBUG: DATABASE_URL found: {'Yes' if DATABASE_URL else 'No'}")  # Debug line
 
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
             conn_max_age=600,
-            ssl_require=False  # Set to False initially, Railway handles SSL differently
+            ssl_require=False  # Disable SSL for now to test
         )
     }
 else:
-    # Fallback if DATABASE_URL is not set
+    # This should NOT happen on Railway
+    print("ERROR: DATABASE_URL not found in environment!")
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='railway'),
-            'USER': config('DB_USER', default='postgres'),
-            'PASSWORD': config('DB_PASSWORD', default=''),
-            'HOST': config('DB_HOST', default=''),
-            'PORT': config('DB_PORT', default='5432'),
-            'CONN_MAX_AGE': 600,
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
 
-# Security headers - disable for now to test
+# Security headers - disable for now
 SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False  # Set to True after SSL is working
-CSRF_COOKIE_SECURE = False  # Set to True after SSL is working
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_HSTS_SECONDS = 0  # Disable HSTS for now
+SECURE_HSTS_SECONDS = 0
 
-# CORS - Restricted
+# CORS - get from environment
 CORS_ALLOW_ALL_ORIGINS = False
-
-# Get CORS origins from environment or use defaults
-cors_origins = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS', '').split(',')
 cors_origins = [origin.strip() for origin in cors_origins if origin.strip()]
 # Add Railway domains
 cors_origins.extend(['https://*.railway.app', 'https://*.up.railway.app'])
 CORS_ALLOWED_ORIGINS = cors_origins
 
-# CSRF Trusted Origins
-csrf_origins = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
+# CSRF - get from environment
+csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
 csrf_origins = [origin.strip() for origin in csrf_origins if origin.strip()]
 # Add Railway domains
 csrf_origins.extend(['https://*.railway.app', 'https://*.up.railway.app'])
 CSRF_TRUSTED_ORIGINS = csrf_origins
 
-# Static files with Whitenoise
+# Static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
-STATICFILES_DIRS = []  # Override for production
+STATICFILES_DIRS = []
 
-# Logging - Set to DEBUG to see what's happening
+# Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
         },
     },
     'root': {
         'handlers': ['console'],
-        'level': 'DEBUG',  # Set to DEBUG to see what's happening
+        'level': 'INFO',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
         'django.db.backends': {
             'handlers': ['console'],
-            'level': 'DEBUG',  # To see SQL queries
+            'level': 'INFO',
             'propagate': False,
         },
     },
 }
 
-# Email backend - disable for now
+# Email backend
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Cache - disable Redis for now
+# Cache
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
@@ -122,7 +107,7 @@ CACHES = {
 
 # Session settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_COOKIE_AGE = 1209600
 
 # Security middleware
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
