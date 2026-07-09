@@ -2,12 +2,12 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput"
+    "buildCommand": "pip install -r requirements.txt && python manage.py collectstatic --noinput --settings=expense_tracker.settings.production"
   },
   "deploy": {
     "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
-    "startCommand": "python manage.py migrate && waitress-serve --port=$PORT expense_tracker.wsgi:application"
+    "startCommand": "python manage.py migrate --settings=expense_tracker.settings.production && gunicorn expense_tracker.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 60"
   }
 }
