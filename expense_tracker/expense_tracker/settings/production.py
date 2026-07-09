@@ -134,6 +134,6 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'API documentation for Expense Tracker Backend',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # Force authentication parsing to skip blocking schema generation
-    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'], # Fixes prod access blocks
 }
