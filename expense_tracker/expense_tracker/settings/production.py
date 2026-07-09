@@ -5,17 +5,18 @@ import dj_database_url
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-# Security settings
+# Security settings - Allow fallback for local testing
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
-    raise ValueError("SECRET_KEY must be set in environment")
+    print("WARNING: SECRET_KEY not set in environment, using fallback for testing")
+    SECRET_KEY = 'django-insecure-test-key-do-not-use-in-production'
 
 # Allowed hosts
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()]
 ALLOWED_HOSTS.extend(['*.railway.app', '*.up.railway.app', 'localhost', '127.0.0.1'])
 
-# Database - Use DATABASE_URL with proper SSL settings
+# Database - Use DATABASE_URL
 DATABASE_URL = os.environ.get('DATABASE_URL')
 print(f"DEBUG: DATABASE_URL found: {'Yes' if DATABASE_URL else 'No'}")
 
@@ -24,17 +25,37 @@ if DATABASE_URL:
         'default': dj_database_url.config(
             default=DATABASE_URL,
             conn_max_age=600,
-            # Try different SSL options
-            sslmode='require',  # Changed from ssl_require
-            options='-c statement_timeout=30000'
         )
     }
+    
+    # Check if we're on Railway (production) or local
+    # Railway uses proxy with SSL, local PostgreSQL usually doesn't
+    if 'railway' in DATABASE_URL or 'rlwy.net' in DATABASE_URL:
+        # On Railway - use SSL
+        DATABASES['default']['OPTIONS'] = {
+            'sslmode': 'require',
+            'connect_timeout': 10,
+        }
+    else:
+        # Local PostgreSQL - no SSL
+        DATABASES['default']['OPTIONS'] = {
+            'sslmode': 'disable',
+        }
 else:
-    print("ERROR: DATABASE_URL not found in environment!")
+    # Fallback to PostgreSQL with individual environment variables
+    print("WARNING: DATABASE_URL not found, using individual PostgreSQL settings")
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME', 'expense_db'),
+            'USER': os.environ.get('DB_USER', 'expense_user'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+            'HOST': os.environ.get('DB_HOST', 'localhost'),
+            'PORT': os.environ.get('DB_PORT', '5432'),
+            'CONN_MAX_AGE': 600,
+            'OPTIONS': {
+                'sslmode': 'disable',  # For local PostgreSQL
+            }
         }
     }
 
@@ -76,17 +97,17 @@ LOGGING = {
     },
     'root': {
         'handlers': ['console'],
-        'level': 'DEBUG',
+        'level': 'INFO',
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
         'django.db.backends': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False,
         },
     },
