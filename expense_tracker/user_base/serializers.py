@@ -19,6 +19,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserBase
         fields = ['id','email','password','mobile_number']
+        
     
     def create(self, validated_data):
         password = validated_data['password']

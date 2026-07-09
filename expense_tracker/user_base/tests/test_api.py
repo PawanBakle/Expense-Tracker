@@ -55,3 +55,24 @@ class AuthAPITests(APITestCase):
             "token",
             response.data
         )
+    def test_login_invalid_credentials(self):
+
+        UserBase.objects.create_user(
+            email="test@example.com",
+            password="StrongPassword123!",
+            mobile_number="9999999999"
+        )
+
+        response = self.client.post(
+            reverse("user-login"),
+            {
+                "email": "test@example.com",
+                "password": "wrongpassword"
+            },
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
