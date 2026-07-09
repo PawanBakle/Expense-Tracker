@@ -8,6 +8,6 @@
     "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
-    "startCommand": "python manage.py migrate --settings=expense_tracker.settings.production && gunicorn expense_tracker.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60 --capture-output --log-level debug"
+    "startCommand": "gunicorn expense_tracker.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 60 --capture-output --log-level debug"
   }
 }
