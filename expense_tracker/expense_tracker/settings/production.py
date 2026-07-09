@@ -12,13 +12,18 @@ if not SECRET_KEY:
     SECRET_KEY = 'django-insecure-test-key-do-not-use-in-production'
 
 # Allowed hosts
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
-ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS if host.strip()]
-ALLOWED_HOSTS.extend(['*.railway.app', '*.up.railway.app', 'localhost', '127.0.0.1'])
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1', 
+    '.railway.app', 
+    '.up.railway.app',
+    'expense-tracker-production-a52b.up.railway.app'
+]
 
 # Database - Optimized for Railway
 
 # Database - Optimized for Railway
+# Database - Optimized for Railway Internal Network
 DATABASE_URL = os.environ.get('DATABASE_URL')
 print(f"DEBUG: DATABASE_URL found: {'Yes' if DATABASE_URL else 'No'}")
 
@@ -26,14 +31,14 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
-            conn_max_age=600,
-            conn_health_checks=True,
+            conn_max_age=0,  # Turn off max age temporarily to prevent pooled connection freezes
+            conn_health_checks=False,
         )
     }
-    # Ensure standard SSL requirements are met securely
+    # For Railway's internal networks, disabling sslmode prevents the 15s handshake timeout
     DATABASES['default']['OPTIONS'] = {
-        'sslmode': 'prefer', # 'prefer' is safer for Railway internal networks
-        'connect_timeout': 30,
+        'sslmode': 'disable',
+        'connect_timeout': 10,
     }
 else:
     # Fallback to local PostgreSQL / SQLite
