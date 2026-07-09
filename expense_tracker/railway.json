@@ -8,6 +8,6 @@
     "numReplicas": 1,
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10,
-    "startCommand": "python manage.py migrate && gunicorn expense_tracker.wsgi:application --bind 0.0.0.0:$PORT --log-level debug --access-logfile - --error-logfile -"
+    "startCommand": "python manage.py migrate && waitress-serve --port=$PORT expense_tracker.wsgi:application"
   }
 }
