@@ -11,32 +11,42 @@ SECRET_KEY = config('SECRET_KEY')  # Must be set in environment
 # Allowed hosts - comma separated in environment variable
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
+# Add Railway's domain
+ALLOWED_HOSTS.append('*.railway.app')
+ALLOWED_HOSTS.append('*.up.railway.app')
 # Database - PostgreSQL using DATABASE_URL
-DATABASE_URL = config('DATABASE_URL', default=None)
-if DATABASE_URL:
-    DATABASES = {
+# DATABASE_URL = config('DATABASE_URL', default=None)
+# if DATABASE_URL:
+#     DATABASES = {
+#         'default': dj_database_url.config(
+#             default=DATABASE_URL,
+#             conn_max_age=600,
+#             ssl_require=True  # Set to False for some hosting providers
+#         )
+#     }
+# else:
+    # Fallback to individual settings if DATABASE_URL is not provided
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',
+    #         'NAME': config('DB_NAME'),
+    #         'USER': config('DB_USER'),
+    #         'PASSWORD': config('DB_PASSWORD'),
+    #         'HOST': config('DB_HOST'),
+    #         'PORT': config('DB_PORT', default='5432'),
+    #         'CONN_MAX_AGE': 600,
+    #     }
+    # }
+
+DATABASES = {
         'default': dj_database_url.config(
-            default=DATABASE_URL,
+            default=config('DATABASE_URL'),
             conn_max_age=600,
-            ssl_require=True  # Set to False for some hosting providers
+            ssl_require=True
         )
     }
-else:
-    # Fallback to individual settings if DATABASE_URL is not provided
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME'),
-            'USER': config('DB_USER'),
-            'PASSWORD': config('DB_PASSWORD'),
-            'HOST': config('DB_HOST'),
-            'PORT': config('DB_PORT', default='5432'),
-            'CONN_MAX_AGE': 600,
-        }
-    }
-
 # Security headers
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 SECURE_BROWSER_XSS_FILTER = True
