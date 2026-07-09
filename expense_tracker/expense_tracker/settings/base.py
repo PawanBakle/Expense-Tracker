@@ -83,13 +83,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = []  # Keep this completely empty
 
 # Only add STATICFILES_DIRS if the directory exists
-static_dir = os.path.join(BASE_DIR, 'static')
-if os.path.exists(static_dir):
-    STATICFILES_DIRS = [static_dir]
-else:
-    STATICFILES_DIRS = []
+
 
 # Media files (if you have user uploads)
 MEDIA_URL = '/media/'

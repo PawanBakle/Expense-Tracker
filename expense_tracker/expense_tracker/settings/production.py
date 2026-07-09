@@ -80,7 +80,12 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
 STATICFILES_DIRS = []
-
+# Modern WhiteNoise configuration - avoids manifest generation freezes
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
 # Logging - More verbose for debugging
 LOGGING = {
     'version': 1,
@@ -135,5 +140,8 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'COMPONENT_SPLIT_REQUEST': True,
-    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'], # Fixes prod access blocks
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.AllowAny'],
+    
+    # This line completely removes Swagger's reliance on local Django static files:
+    'SWAGGER_UI_DIST': 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@5',
 }
