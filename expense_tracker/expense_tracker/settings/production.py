@@ -76,7 +76,7 @@ csrf_origins.extend(['https://*.railway.app', 'https://*.up.railway.app'])
 CSRF_TRUSTED_ORIGINS = csrf_origins
 
 # Static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
 STATICFILES_DIRS = []
