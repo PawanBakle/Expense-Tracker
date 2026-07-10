@@ -19,10 +19,11 @@ def home(request):
 
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
+
     @extend_schema(
-    request=UserRegistrationView,
-    responses=UserRegistrationView
-)
+        request=UserRegisterSerializer,
+        responses=UserRegisterSerializer
+    )
     def post(self, request):
         serializer = UserRegisterSerializer(data = request.data)
         serializer.is_valid(raise_exception= True)
@@ -32,10 +33,20 @@ class UserRegistrationView(APIView):
 
 class UserLogin(APIView):
     permission_classes = [AllowAny]
+
     @extend_schema(
-    request=UserLogin,
-    responses=UserLogin
-)
+        request=LoginSerializer,
+        responses={
+            200: {
+                "type": "object",
+                "properties": {
+                    "token": {"type": "string"},
+                    "user_id": {"type": "integer"},
+                    "email": {"type": "string"}
+                }
+            }
+        }
+    )
     def post(self, request):
         serializer = LoginSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
@@ -55,9 +66,9 @@ class UserLogin(APIView):
 class ExpenseView(APIView):
     permission_classes = [IsAuthenticated]
     @extend_schema(
-    request=ExpenseView,
-    responses=ExpenseView
-)
+        request=ExpenseSerializer,
+        responses=ExpenseListSerializer
+    )
     # User wants to create an Expense here, send data which includes amount, participants, group 
     def post(self, request, group_id = None):
         # since this is create we don't need a query-set
@@ -82,9 +93,7 @@ serializer.validated_data is the clean, validated input (Python-native), meant f
         return Response(jsonify.data, status=201)
 
 # `GET /api/groups/{group_id}/expenses` Getting Group Expense
-    @extend_schema(
-        responses=ExpenseView
-    )
+
     def get(self, request, group_id = None):
         group = get_object_or_404(Group, id=group_id)
 
@@ -100,7 +109,7 @@ serializer.validated_data is the clean, validated input (Python-native), meant f
 class BalanceView(APIView):
     permission_classes = [IsAuthenticated]
     @extend_schema(
-        responses=BalanceView
+        responses=BalanceSerializer
     )
     def get(self, request,id):
         # user = request.user
@@ -117,8 +126,8 @@ class BalanceView(APIView):
 class SettlementView(APIView):
     permission_classes = [IsAuthenticated]
     @extend_schema(
-    request=SettlementView,
-    responses=SettlementView
+    request=SettlementSerializer,
+    responses=SettlementSerializer
 )
     def post(self, request):
 
@@ -133,10 +142,7 @@ class SettlementView(APIView):
 # class GroupView(viewsets.ViewSet):
 class GroupView(APIView):
     permission_classes = [IsAuthenticated]
-    @extend_schema(
-    request=GroupView,
-    responses=GroupView
-)
+
     def post(self, request):
         # user = request.user
         # serializer = GroupSerializer(data = request.data,context = {'request':user})
@@ -152,7 +158,7 @@ class GroupView(APIView):
     user = self.context['request']
     '''
     @extend_schema(
-        responses=GroupView
+        responses=GroupDetailSerializer
     )
     # GET /api/groups/{group_id} RETRIEVE GROUP DETAILS 
     def get(self, request, groupId):
@@ -177,8 +183,8 @@ class GroupView(APIView):
 class GroupMemberView(APIView):
     permission_classes = [IsAuthenticated]
     @extend_schema(
-    request=GroupMemberView,
-    responses=GroupMemberView
+    request=GroupMemberSerializer,
+    responses=GroupMemberSerializer
 )
     def post(self, request, group_id= None):
 
