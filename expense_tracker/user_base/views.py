@@ -13,12 +13,16 @@ from .models import UserBase,Group,GroupMember,Expense
 from .serializers import ExpenseSerializer,GroupSerializer,GroupMemberSerializer,GroupDetailSerializer,SettlementSerializer,ExpenseListSerializer,UserRegisterSerializer, LoginSerializer
 from .services import expense_split_compute,compute_balance
 
-
+from drf_spectacular.utils import extend_schema
 def home(request):
     return HttpResponse("Welcome to User Base home!")
 
 class UserRegistrationView(APIView):
     permission_classes = [AllowAny]
+    @extend_schema(
+    request=UserRegistrationView,
+    responses=UserRegistrationView
+)
     def post(self, request):
         serializer = UserRegisterSerializer(data = request.data)
         serializer.is_valid(raise_exception= True)
@@ -28,7 +32,10 @@ class UserRegistrationView(APIView):
 
 class UserLogin(APIView):
     permission_classes = [AllowAny]
-
+    @extend_schema(
+    request=UserLogin,
+    responses=UserLogin
+)
     def post(self, request):
         serializer = LoginSerializer(data = request.data)
         serializer.is_valid(raise_exception=True)
@@ -47,6 +54,10 @@ class UserLogin(APIView):
 # POST /api/groups/{group_id}/expenses
 class ExpenseView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+    request=ExpenseView,
+    responses=ExpenseView
+)
     # User wants to create an Expense here, send data which includes amount, participants, group 
     def post(self, request, group_id = None):
         # since this is create we don't need a query-set
@@ -71,6 +82,9 @@ serializer.validated_data is the clean, validated input (Python-native), meant f
         return Response(jsonify.data, status=201)
 
 # `GET /api/groups/{group_id}/expenses` Getting Group Expense
+    @extend_schema(
+        responses=ExpenseView
+    )
     def get(self, request, group_id = None):
         group = get_object_or_404(Group, id=group_id)
 
@@ -85,6 +99,9 @@ serializer.validated_data is the clean, validated input (Python-native), meant f
 # GET /api/users/{user_id}/balances
 class BalanceView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+        responses=BalanceView
+    )
     def get(self, request,id):
         # user = request.user
         # what do we need here? request arrives for get and computing balance, need to send data to the service layer
@@ -99,6 +116,10 @@ class BalanceView(APIView):
 # POST /api/settlements settlement happens between the user 
 class SettlementView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+    request=SettlementView,
+    responses=SettlementView
+)
     def post(self, request):
 
         # so since i am validating both payer and receiver already i can directly use serializer which performs validation of FK
@@ -112,6 +133,10 @@ class SettlementView(APIView):
 # class GroupView(viewsets.ViewSet):
 class GroupView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+    request=GroupView,
+    responses=GroupView
+)
     def post(self, request):
         # user = request.user
         # serializer = GroupSerializer(data = request.data,context = {'request':user})
@@ -126,6 +151,9 @@ class GroupView(APIView):
     serializer = GroupSerializer(data=request.data, context={'request': request.user})   
     user = self.context['request']
     '''
+    @extend_schema(
+        responses=GroupView
+    )
     # GET /api/groups/{group_id} RETRIEVE GROUP DETAILS 
     def get(self, request, groupId):
         # user = request.user
@@ -148,6 +176,10 @@ class GroupView(APIView):
 # `POST /api/groups/{group_id}/members` ADDING NEW GROUP MEMBER!
 class GroupMemberView(APIView):
     permission_classes = [IsAuthenticated]
+    @extend_schema(
+    request=GroupMemberView,
+    responses=GroupMemberView
+)
     def post(self, request, group_id= None):
 
         group = get_object_or_404(Group, id = group_id)

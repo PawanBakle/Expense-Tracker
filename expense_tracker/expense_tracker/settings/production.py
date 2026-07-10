@@ -79,6 +79,7 @@ CSRF_TRUSTED_ORIGINS = csrf_origins
 
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_MANIFEST_STRICT = False
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = []
 # Modern WhiteNoise configuration - avoids manifest generation freezes
 STORAGES = {
