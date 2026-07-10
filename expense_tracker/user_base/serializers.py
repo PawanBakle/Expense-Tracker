@@ -29,16 +29,19 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         # user.save()
         # return user
         return user
-
+class TokenResponseSerializer(serializers.Serializer):
+    token = serializers.CharField()
+    user_id = serializers.IntegerField()
+    email = serializers.EmailField()
 
 # POST /api/users/login
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
-    def validate(self, validated_data):
-        email = validated_data['email']
-        password = validated_data['password']
+    def validate(self, attrs):
+        email = attrs['email']
+        password = attrs['password']
         if email and password:
             user = authenticate(email = email, password = password)
 
@@ -49,8 +52,8 @@ class LoginSerializer(serializers.Serializer):
         else:
             raise serializers.ValidationError("Must include both email and password")
 
-        validated_data['user'] = user
-        return validated_data
+        attrs['user'] = user
+        return attrs
 
 # creating Expense  (POST API)
 '''data = {
@@ -272,7 +275,19 @@ class GroupDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at']
 
 
-
+class BalanceResponseSerializer(serializers.Serializer):
+    you_are_owed = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+    you_owe = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+    balance = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
 
  # SETTLEMENT SERIALIZER (WRONG SERIALIZER)
 

@@ -10,7 +10,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.views import APIView
 from .models import UserBase,Group,GroupMember,Expense
-from .serializers import ExpenseSerializer,GroupSerializer,GroupMemberSerializer,GroupDetailSerializer,SettlementSerializer,ExpenseListSerializer,UserRegisterSerializer, LoginSerializer
+from .serializers import ExpenseSerializer,GroupSerializer,GroupMemberSerializer,GroupDetailSerializer,SettlementSerializer,ExpenseListSerializer,UserRegisterSerializer, LoginSerializer, TokenResponseSerializer, BalanceResponseSerializer
 from .services import expense_split_compute,compute_balance
 
 from drf_spectacular.utils import extend_schema
@@ -36,16 +36,7 @@ class UserLogin(APIView):
 
     @extend_schema(
         request=LoginSerializer,
-        responses={
-            200: {
-                "type": "object",
-                "properties": {
-                    "token": {"type": "string"},
-                    "user_id": {"type": "integer"},
-                    "email": {"type": "string"}
-                }
-            }
-        }
+        responses=TokenResponseSerializer
     )
     def post(self, request):
         serializer = LoginSerializer(data = request.data)
@@ -108,7 +99,9 @@ serializer.validated_data is the clean, validated input (Python-native), meant f
 # GET /api/users/{user_id}/balances
 class BalanceView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+        responses=BalanceResponseSerializer
+    )
     def get(self, request,id):
         # user = request.user
         # what do we need here? request arrives for get and computing balance, need to send data to the service layer
@@ -140,7 +133,11 @@ class SettlementView(APIView):
 # class GroupView(viewsets.ViewSet):
 class GroupView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+        operation_id="create_group",
+        request=GroupSerializer,
+        responses=GroupSerializer
+    )
     def post(self, request):
         # user = request.user
         # serializer = GroupSerializer(data = request.data,context = {'request':user})
@@ -156,6 +153,7 @@ class GroupView(APIView):
     user = self.context['request']
     '''
     @extend_schema(
+        operation_id="retrieve_group",
         responses=GroupDetailSerializer
     )
     # GET /api/groups/{group_id} RETRIEVE GROUP DETAILS 

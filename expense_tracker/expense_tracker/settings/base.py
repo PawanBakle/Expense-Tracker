@@ -113,11 +113,29 @@ REST_FRAMEWORK = {
 
 # Swagger/OpenAPI settings
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Expense Splitting API',
-    'DESCRIPTION': 'Splitwise-style expense management API built using Django REST Framework',
+    'TITLE': 'Expense Tracker API',
+    'DESCRIPTION': 'Splitwise-style expense management API',
     'VERSION': '1.0.0',
+
     'SERVE_INCLUDE_SCHEMA': False,
+
     'COMPONENT_SPLIT_REQUEST': True,
+
+    'SECURITY': [
+        {
+            'TokenAuth': []
+        }
+    ],
+
+    'APPEND_COMPONENTS': {
+        'securitySchemes': {
+            'TokenAuth': {
+                'type': 'apiKey',
+                'in': 'header',
+                'name': 'Authorization',
+            }
+        }
+    },
 }
 
 # CORS settings (will be overridden in local/production)
