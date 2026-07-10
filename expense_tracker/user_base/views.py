@@ -108,9 +108,7 @@ serializer.validated_data is the clean, validated input (Python-native), meant f
 # GET /api/users/{user_id}/balances
 class BalanceView(APIView):
     permission_classes = [IsAuthenticated]
-    @extend_schema(
-        responses=BalanceSerializer
-    )
+
     def get(self, request,id):
         # user = request.user
         # what do we need here? request arrives for get and computing balance, need to send data to the service layer
